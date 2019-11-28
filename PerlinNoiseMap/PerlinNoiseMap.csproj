@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="Assets\AssetManager.cs" />
     <Compile Include="Libs\MathHelperExtension.cs" />
+    <Compile Include="Libs\PerlinNoise\TerrainType.cs" />
     <Compile Include="MyGame\PerlinEditorScene.cs" />
     <Compile Include="Libs\Camera.cs" />
     <Compile Include="Libs\Forms\Circle.cs" />
