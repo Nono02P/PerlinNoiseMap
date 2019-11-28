@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 
-namespace Libs
+namespace Libs.PerlinNoise
 {
     public static class Noise
     {
@@ -61,7 +61,7 @@ namespace Libs
 
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = MathHelper.Lerp(minNoise, maxNoise, result[i]);
+                result[i] = (float)MathHelperExtension.MapValue(minNoise, maxNoise, 0, 1, result[i]);
             }
 
             return result;

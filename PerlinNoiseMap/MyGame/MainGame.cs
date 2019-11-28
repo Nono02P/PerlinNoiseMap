@@ -28,7 +28,7 @@ namespace PerlinNoiseMap
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             AssetManager.Load(Content);
             _gameState = GameState.GetInstance(GraphicsDevice);
-            _gameState.ChangeScene(SceneType.MainScene);
+            _gameState.ChangeScene(SceneType.PerlinEditorScene);
         }
 
         protected override void Update(GameTime gameTime)

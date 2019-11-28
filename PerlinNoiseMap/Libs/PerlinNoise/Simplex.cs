@@ -1,4 +1,4 @@
-﻿namespace Libs
+﻿namespace Libs.PerlinNoise
 {
     public class Simplex
     {

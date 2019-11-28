@@ -3,15 +3,19 @@ using Libs;
 using Libs.GUI;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using Libs.PerlinNoise;
 
 namespace PerlinNoiseMap.MyGame
 {
-    public class MainScene : Scene
+    public class PerlinEditorScene : Scene
     {
         private Vector2 _mapSize;
         private float[] _map;
         private Texture2D _mapTexture;
         private Dictionary<eSliderType, Group> _sliders;
+        private List<TerrainType> _terrainTypes;
+        private float _terrainRange;
+
         private enum eSliderType
         {
             Scale, Persistance, Octaves, Lacunarity, OffsetX, OffsetY,
@@ -31,6 +35,20 @@ namespace PerlinNoiseMap.MyGame
             AddSlider(eSliderType.Lacunarity);
             AddSlider(eSliderType.OffsetX);
             AddSlider(eSliderType.OffsetY);
+
+            _terrainTypes = new List<TerrainType>();
+            _terrainTypes.Add(new TerrainType("DarkWater", 0.2f, Color.DarkBlue));
+            _terrainTypes.Add(new TerrainType("Water", 0.3f, Color.Blue));
+            _terrainTypes.Add(new TerrainType("Sand", 0.2f, Color.SandyBrown));
+            _terrainTypes.Add(new TerrainType("Land", 0.4f, Color.ForestGreen));
+            _terrainTypes.Add(new TerrainType("DarkRock", 0.3f, Color.DarkGray));
+            _terrainTypes.Add(new TerrainType("Rock", 0.2f, Color.LightGray));
+            _terrainTypes.Add(new TerrainType("Snow", 0.1f, Color.White));
+
+            for (int i = 0; i < _terrainTypes.Count; i++)
+            {
+                _terrainRange += _terrainTypes[i].Height;
+            }
 
             GenerateMap();
             base.Load();
@@ -80,7 +98,18 @@ namespace PerlinNoiseMap.MyGame
             Color[] colors = new Color[_map.Length];
             for (int i = 0; i < _map.Length; i++)
             {
-                colors[i] = Color.White * _map[i];
+                Color c = Color.White;
+                float height = 0;
+                for (int t = 0; t < _terrainTypes.Count; t++)
+                {
+                    height += _terrainTypes[t].Height;
+                    if (_map[i] <= MathHelperExtension.MapValue(0, _terrainRange, 0, 1, height))
+                    {
+                        c = _terrainTypes[t].Color;
+                        break;
+                    }
+                }
+                colors[i] = c;
             }
             _mapTexture.SetData(colors);
         }
