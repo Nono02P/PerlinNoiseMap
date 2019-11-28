@@ -73,7 +73,7 @@ namespace Libs
                 CurrentScene.Draw(spriteBatch, gameTime);
             spriteBatch.End();
 
-            var cameraPosition = new Vector3(0, 0, 0);
+            var cameraPosition = new Vector3(15, 10, 10);
             var cameraLookAtVector = Vector3.Zero;
             var cameraUpVector = Vector3.UnitZ;
 

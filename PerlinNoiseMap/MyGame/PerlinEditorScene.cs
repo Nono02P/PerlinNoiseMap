@@ -97,7 +97,7 @@ namespace PerlinNoiseMap.MyGame
             float offsetY = GetSliderValue(eSliderType.OffsetY, 0, 10);
             _mapData = Noise.Generate2DMap(_mapSize, new Vector2(offsetX, offsetY), scale, octaves, persistance, lacunarity, 1);
 
-            _mapVertices = new VertexPositionColor[_mapData.Length];
+            _mapVertices = new VertexPositionColor[(int)((_mapSize.X - 1) * (_mapSize.Y - 1) * 6)];
             _triangleCounter = 0;
             int vertexIndex = 0;
             float topLeftX = (_mapSize.X - 1) / -2f;
@@ -119,12 +119,23 @@ namespace PerlinNoiseMap.MyGame
                             break;
                         }
                     }
-                    _mapVertices[vertexIndex].Position = new Vector3(topLeftX + x, _mapData[index], topLeftZ - y);
-                    _mapVertices[vertexIndex].Color = c;
-
                     if (x < _mapSize.X - 1 && y < _mapSize.Y - 1)
+                    {
+                        // vertexIndex, vertexIndex + width + 1, vertexIndex + width
+                        // vertexIndex + width + 1, vertexIndex, vertexIndex + 1
+                        _mapVertices[vertexIndex].Position = new Vector3(topLeftX + x, _mapData[index] * 100, topLeftZ - y);
+                        _mapVertices[vertexIndex + 1].Position = new Vector3(topLeftX + x + 1, _mapData[index] * 100, topLeftZ - y + 1);
+                        _mapVertices[vertexIndex + 2].Position = new Vector3(topLeftX + x, _mapData[index] * 100, topLeftZ - y + 1);
+                        _mapVertices[vertexIndex + 3].Position = new Vector3(topLeftX + x + 1, _mapData[index] * 100, topLeftZ - y + 1);
+                        _mapVertices[vertexIndex + 4].Position = new Vector3(topLeftX + x, _mapData[index] * 100, topLeftZ - y);
+                        _mapVertices[vertexIndex + 5].Position = new Vector3(topLeftX + x + 1, _mapData[index] * 100, topLeftZ - y);
+                        for (int i = 0; i < 6; i++)
+                        {
+                            _mapVertices[vertexIndex + i].Color = c;
+                        }
+                        vertexIndex += 6;
                         _triangleCounter += 2;
-                    vertexIndex++;
+                    }
                 }
             }
         }
@@ -134,7 +145,7 @@ namespace PerlinNoiseMap.MyGame
             foreach (var pass in effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, _mapVertices, 0, 5);// _triangleCounter);
+                graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, _mapVertices, 0, _triangleCounter);
             }
             base.Draw(graphicsDevice, effect, gameTime);
         }
