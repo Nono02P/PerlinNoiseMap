@@ -3,10 +3,11 @@ using Libs;
 using Libs.GUI;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using Libs.PerlinNoise;
 
 namespace PerlinNoiseMap.MyGame
 {
-    public class MainScene : Scene
+    public class PerlinEditorScene : Scene
     {
         private Vector2 _mapSize;
         private float[] _map;

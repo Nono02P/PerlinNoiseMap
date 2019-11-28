@@ -30,6 +30,6 @@ namespace Libs
     public enum eDirection : byte { Top, Right, Bottom, Left }
     public enum VAlign : byte { None, Top, Middle, Bottom }
     public enum HAlign : byte { None, Left, Center, Right }
-    public enum SceneType : byte { MainScene, }
+    public enum SceneType : byte { PerlinEditorScene, }
     #endregion
 }

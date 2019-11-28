@@ -44,8 +44,8 @@ namespace Libs
             }
             switch (pSceneType)
             {
-                case SceneType.MainScene:
-                    CurrentScene = new MainScene();
+                case SceneType.PerlinEditorScene:
+                    CurrentScene = new PerlinEditorScene();
                     break;
                 default:
                     break;
