@@ -9,9 +9,11 @@ namespace PerlinNoiseMap.MyGame
 {
     public class PerlinEditorScene : Scene
     {
+        private VertexPositionColor[] _mapVertices;
         private Vector2 _mapSize;
-        private float[] _map;
-        private Texture2D _mapTexture;
+        private float[] _mapData;
+        private int _triangleCounter;
+
         private Dictionary<eSliderType, Group> _sliders;
         private List<TerrainType> _terrainTypes;
         private float _terrainRange;
@@ -25,8 +27,7 @@ namespace PerlinNoiseMap.MyGame
         public override void Load()
         {
             Viewport screen = GameState.Screen;
-            _mapSize = new Vector2(screen.Width - 200, screen.Height);
-            _mapTexture = new Texture2D(GameState.GraphicsDevice, (int)_mapSize.X, (int)_mapSize.Y);
+            _mapSize = new Vector2(20);// screen.Width - 200, screen.Height);
 
             _sliders = new Dictionary<eSliderType, Group>();
             AddSlider(eSliderType.Scale);
@@ -88,36 +89,54 @@ namespace PerlinNoiseMap.MyGame
 
         private void GenerateMap()
         {
-            float scale = GetSliderValue(eSliderType.Scale, 0.1f, 100);
+            float scale = GetSliderValue(eSliderType.Scale, 50, 200);
             int octaves = (int)GetSliderValue(eSliderType.Octaves, 1, 10);
             float persistance = GetSliderValue(eSliderType.Persistance, 0, 1);
             float lacunarity = GetSliderValue(eSliderType.Lacunarity, 0, 4);
             float offsetX = GetSliderValue(eSliderType.OffsetX, 0, 10);
             float offsetY = GetSliderValue(eSliderType.OffsetY, 0, 10);
-            _map = Noise.Generate2DMap(_mapSize, new Vector2(offsetX, offsetY), scale, octaves, persistance, lacunarity, 1);
-            Color[] colors = new Color[_map.Length];
-            for (int i = 0; i < _map.Length; i++)
+            _mapData = Noise.Generate2DMap(_mapSize, new Vector2(offsetX, offsetY), scale, octaves, persistance, lacunarity, 1);
+
+            _mapVertices = new VertexPositionColor[_mapData.Length];
+            _triangleCounter = 0;
+            int vertexIndex = 0;
+            float topLeftX = (_mapSize.X - 1) / -2f;
+            float topLeftZ = (_mapSize.Y - 1) / 2f;
+
+            for (int y = 0; y < _mapSize.Y; y++)
             {
-                Color c = Color.White;
-                float height = 0;
-                for (int t = 0; t < _terrainTypes.Count; t++)
+                for (int x = 0; x < _mapSize.X; x++)
                 {
-                    height += _terrainTypes[t].Height;
-                    if (_map[i] <= MathHelperExtension.MapValue(0, _terrainRange, 0, 1, height))
+                    Color c = Color.White;
+                    float height = 0;
+                    int index = x + y * (int)_mapSize.X;
+                    for (int t = 0; t < _terrainTypes.Count; t++)
                     {
-                        c = _terrainTypes[t].Color;
-                        break;
+                        height += _terrainTypes[t].Height;
+                        if (_mapData[index] <= MathHelperExtension.MapValue(0, _terrainRange, 0, 1, height))
+                        {
+                            c = _terrainTypes[t].Color;
+                            break;
+                        }
                     }
+                    _mapVertices[vertexIndex].Position = new Vector3(topLeftX + x, _mapData[index], topLeftZ - y);
+                    _mapVertices[vertexIndex].Color = c;
+
+                    if (x < _mapSize.X - 1 && y < _mapSize.Y - 1)
+                        _triangleCounter += 2;
+                    vertexIndex++;
                 }
-                colors[i] = c;
             }
-            _mapTexture.SetData(colors);
         }
 
-        public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        public override void Draw(GraphicsDevice graphicsDevice, BasicEffect effect, GameTime gameTime)
         {
-            spriteBatch.Draw(_mapTexture, Vector2.Zero, null, Color.White);
-            base.Draw(spriteBatch, gameTime);
+            foreach (var pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, _mapVertices, 0, 5);// _triangleCounter);
+            }
+            base.Draw(graphicsDevice, effect, gameTime);
         }
     }
 }

@@ -79,6 +79,8 @@ namespace Libs
                 actor.Draw(primitiveBatch, gameTime);
             }
         }
+
+        public virtual void Draw(GraphicsDevice graphicsDevice, BasicEffect effect, GameTime gameTime) {}
         #endregion
     }
 }

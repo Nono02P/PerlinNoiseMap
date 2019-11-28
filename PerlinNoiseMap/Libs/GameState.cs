@@ -10,7 +10,8 @@ namespace Libs
 
         public Color BackgroundColor { get; set; }
         public static Viewport Screen { get; private set; }
-        public static GraphicsDevice GraphicsDevice { get; private set; }
+        public static GraphicsDeviceManager Graphics { get; private set; }
+        public static BasicEffect Effect { get; private set; }
         public static Camera Camera { get; private set; }
         public static Scene CurrentScene { get; private set; }
         public static readonly bool UsingMouse = true;
@@ -18,19 +19,20 @@ namespace Libs
         public static readonly bool UsingGamePad = false;
         public static readonly int GamePadMaxPlayer = 0;
 
-        private GameState(GraphicsDevice pGraphicsDevice)
+        private GameState(GraphicsDeviceManager pGraphics)
         {
-            GraphicsDevice = pGraphicsDevice;
-            Screen = pGraphicsDevice.Viewport;
+            Graphics = pGraphics;
+            Screen = pGraphics.GraphicsDevice.Viewport;
             Camera = new Camera(Screen, Vector3.Zero);
             Camera.LimitOnTop = false;
             Camera.MouseFollowOnTop = false;
+            Effect = new BasicEffect(pGraphics.GraphicsDevice);
         }
 
-        public static GameState GetInstance(GraphicsDevice pGraphicsDevice)
+        public static GameState GetInstance(GraphicsDeviceManager pGraphics)
         {
             if (_instance == null)
-                _instance = new GameState(pGraphicsDevice);
+                _instance = new GameState(pGraphics);
             return _instance;
         }
 
@@ -70,6 +72,23 @@ namespace Libs
             if (CurrentScene != null)
                 CurrentScene.Draw(spriteBatch, gameTime);
             spriteBatch.End();
+
+            var cameraPosition = new Vector3(0, 0, 0);
+            var cameraLookAtVector = Vector3.Zero;
+            var cameraUpVector = Vector3.UnitZ;
+
+            Effect.View = Matrix.CreateLookAt(cameraPosition, cameraLookAtVector, cameraUpVector);
+
+            float aspectRatio = Graphics.PreferredBackBufferWidth / (float)Graphics.PreferredBackBufferHeight;
+            float fieldOfView = MathHelper.PiOver4;
+            float nearClipPlane = 1;
+            float farClipPlane = 200;
+
+            Effect.Projection = Matrix.CreatePerspectiveFieldOfView(
+                fieldOfView, aspectRatio, nearClipPlane, farClipPlane);
+
+            if (CurrentScene != null)
+                CurrentScene.Draw(Graphics.GraphicsDevice, Effect, gameTime);
         }
     }
 }
