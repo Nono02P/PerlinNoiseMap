@@ -20,6 +20,11 @@ namespace Libs.GUI
         private int _value = 50;
         #endregion
 
+        #region Variables Privées
+        private TimeSpan _presetTimer;
+        private TimeSpan _currentTimer;
+        #endregion Variables Privées
+
         #region Propriétés
         /// <summary>
         /// Taille de la barre du slider
@@ -66,13 +71,14 @@ namespace Libs.GUI
             BarSize = pBarSize;
             CursorSize = pCursorSize;
             OnPositionChange += Slider_OnPositionChange;
+            _presetTimer = new TimeSpan(3000000);
         }
+        #endregion
 
         private void Slider_OnPositionChange(object sender, Vector2 previous, Vector2 actual)
         {
             RefreshCursorPosition();
         }
-        #endregion
 
         #region Méthodes
 
@@ -91,12 +97,18 @@ namespace Libs.GUI
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+            TimeSpan dt = gameTime.ElapsedGameTime;
             if (Clicked)
             {
                 Vector2 v = Mouse.GetState().Position.ToVector2() - Position;
                 double hyp = v.Length();
-                Value = (int)(v.X / BarSize.X * 100);
+                if (_currentTimer >= _presetTimer)
+                {
+                    Value = (int)(v.X / BarSize.X * 100);
+                    _currentTimer = TimeSpan.Zero;
+                }
             }
+            _currentTimer += dt;
         }
         #endregion
 
