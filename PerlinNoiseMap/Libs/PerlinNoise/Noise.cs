@@ -61,7 +61,7 @@ namespace Libs.PerlinNoise
 
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = MathHelper.Lerp(maxNoise, minNoise, result[i]);
+                result[i] = (float)MathHelperExtension.MapValue(minNoise, maxNoise, 0, 1, result[i]);
             }
 
             return result;
